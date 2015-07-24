@@ -28,7 +28,7 @@
 		</feature>
 	</config-file>
 
-	<header-file src="src/ios/ConvertMedia.h">
-	<source-file src="src/ios/ConvertMedia.m">
+	<header-file src="src/ios/ConvertMedia.h" />
+	<source-file src="src/ios/ConvertMedia.m" />
 </platform>
 </plugin>
