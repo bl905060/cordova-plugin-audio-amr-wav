@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
-	id="cn.edu.hdu.covertmedia" version="0.0.1">
+	id="cn.edu.hdu.cordova.convert.media" version="0.0.1">
 
 <name>Cordova media convert plugin</name>
 
