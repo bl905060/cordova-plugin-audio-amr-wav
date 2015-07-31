@@ -7,9 +7,13 @@
 //
 
 #import <Cordova/CDVPlugin.h>
+#import <Cordova/CDVInvokeUrlCommand.h>
+#import <Foundation/Foundation.h>
 
-@interface ConvertMedia : CDVPlugin
+@interface CDVConvertMedia : CDVPlugin
 
-- (void)echo:(CDVInvokedUrlCommand*) command;
+-(void) wmaToAmr: (CDVInvokedUrlCommand*) command;
+-(void) amrToWma: (CDVInvokedUrlCommand*) command;
+
 
 @end
