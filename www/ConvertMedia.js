@@ -1,5 +1,9 @@
-window.convertmedia = function(str, callback) {
-    cordova.exec(callback, function(err) {
-                 callback("Nothing to echo.");
-                 }, "Echo", "echo", [str]);
+window.convertmedia = {
+    alert: function(title, message, buttonLabel, successCallback) {
+        cordova.exec(successCallback,
+                     null, // No failure callback
+                     "ConvertMedia",
+                     "alert",
+                     [title, message, buttonLabel]);
+    }
 };
