@@ -8,8 +8,6 @@
 
 #import "ConvertMedia.h"
 
-@implementation ConvertMedia
-
 //-(void) wmaToAmr: (CDVInvokedUrlCommand*) command
 //{
 //    NSlog(@"This is wma to amr plugin!");
@@ -21,37 +19,22 @@
 //}
 
 
-- (void)pluginInitialize{
+@implementation ConvertMedia
 
-}
-
-- (void)alert:(CDVInvokedUrlCommand*)command{
-    NSString* callbackId = command.callbackId;
-    NSString* title = [command argumentAtIndex:0];
-    NSString* message = [command argumentAtIndex:1];
-    NSString* button = [command argumentAtIndex:2];
+- (void) greet:(CDVInvokedUrlCommand*)command
+{
     
-    MyAlertView *alert = [[MyAlertView alloc]
-                          initWithTitle:title
-                          message:message
-                          delegate:self
-                          cancelButtonTitle:button
-                          otherButtonTitles:nil];
-    alert.callbackId = callbackId;
-    [alert show];
+    NSString* callbackId = [command callbackId];
+    NSString* name = [[command arguments] objectAtIndex:0];
+    NSString* msg = [NSString stringWithFormat: @"Hello, %@", name];
+    
+    CDVPluginResult* result = [CDVPluginResult
+                               resultWithStatus:CDVCommandStatus_OK
+                               messageAsString:msg];
+    
+    NSLog(@"this is my first plugin!");
+    
+    [self success:result callbackId:callbackId];
 }
-
-- (void)alertView:(UIAlertView*)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
-    MyAlertView* myAlertView = (MyAlertView*)alertView;
-    CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
-                                                   messageAsInt:0];
-    [self.commandDelegate sendPluginResult:result callbackId:myAlertView.callbackId];
-}
-
-@end
-
-@implementation MyAlertView
-
-@synthesize callbackId;
 
 @end

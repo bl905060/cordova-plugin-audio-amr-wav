@@ -10,20 +10,20 @@
 #import <Cordova/CDVInvokeUrlCommand.h>
 #import <Foundation/Foundation.h>
 
-@interface ConvertMedia : CDVPlugin <UIAlertViewDelegate> {}
+@interface ConvertMedia : CDVPlugin //<UIAlertViewDelegate> {}
 
 //-(void) wmaToAmr: (CDVInvokedUrlCommand*) command;
 //-(void) amrToWma: (CDVInvokedUrlCommand*) command;
 
-- (void)alert:(CDVInvokedUrlCommand*)command;
+- (void) greet:(CDVInvokedUrlCommand*)command;
 
 
 @end
 
-@interface MyAlertView : UIAlertView {}
-
-@property (nonatomic, copy) NSString* callbackId;
-
-@end
+//@interface MyAlertView : UIAlertView {}
+//
+//@property (nonatomic, copy) NSString* callbackId;
+//
+//@end
 
 

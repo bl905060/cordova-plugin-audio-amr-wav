@@ -1,9 +1,9 @@
-window.convertmedia = {
-    alert: function(title, message, buttonLabel, successCallback) {
+module.exports = {
+    greet: function(name, successCallback, errorCallback) {
         cordova.exec(successCallback,
-                     null, // No failure callback
+                     errorCallback,
                      "ConvertMedia",
-                     "alert",
-                     [title, message, buttonLabel]);
+                     "greet",
+                     [name]);
     }
 };
