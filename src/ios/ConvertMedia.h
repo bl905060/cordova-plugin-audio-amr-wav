@@ -6,9 +6,10 @@
 //
 //
 
-#import <Cordova/CDVPlugin.h>
+/*#import <Cordova/CDVPlugin.h>
 #import <Cordova/CDVInvokeUrlCommand.h>
-#import <Foundation/Foundation.h>
+#import <Foundation/Foundation.h>*/
+#import <Cordova/CDV.h>
 
 @interface ConvertMedia : CDVPlugin //<UIAlertViewDelegate> {}
 

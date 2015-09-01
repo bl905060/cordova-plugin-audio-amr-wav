@@ -24,7 +24,7 @@
 
 <!-- ios -->
 <platform name="ios">
-	<config-file target="config.xml" parent="/*">
+	<config-file target="config.xml" parent="/widget">
 		<feature name="ConvertMedia">
 			<param name="ios-package" value="ConvertMedia" />
 		</feature>
