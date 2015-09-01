@@ -16,6 +16,8 @@
 	<engine name="cordova" version=">=3.3.0" />
 </engines>
 
+<asset src="www/ConvertMedia.js" target="js/ConvertMedia.js"/>
+
 <js-module src="www/ConvertMedia.js" name="ConvertMedia.js">
 	<clobbers target="ConvertMedia" />
 </js-module>
