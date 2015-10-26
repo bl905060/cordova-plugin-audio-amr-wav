@@ -1,37 +1,33 @@
 module.exports = {
     record: function(param, successCallback, errorCallback) {
-        /*cordova.exec(successCallback,
+        cordova.exec(successCallback,
                      errorCallback,
                      "ConvertMedia",
                      "startRecord",
-                     [param]);*/
-        alert(1);
+                     [param]);
     },
     
     stop: function(param, successCallback, errorCallback) {
-        /*cordova.exec(successCallback,
+        cordova.exec(successCallback,
                      errorCallback,
                      "ConvertMedia",
                      "stopRecord",
-                     [param]);*/
-        alert(2);
+                     [param]);
     },
     
     play: function(audioURL, successCallback, errorCallback) {
-        /*cordova.exec(successCallback,
+        cordova.exec(successCallback,
                      errorCallback,
                      "ConvertMedia",
                      "playAudio",
-                     [audioURL]);*/
-        alert(3);
+                     [audioURL]);
     },
     
     convertToAmr: function(audioURL, successCallback, errorCallback) {
-        /*cordova.exec(successCallback,
+        cordova.exec(successCallback,
                      errorCallback,
                      "ConvertMedia",
                      "convertToAmr",
-                     [audioURL]);*/
-        alert(4);
+                     [audioURL]);
     }
 };
