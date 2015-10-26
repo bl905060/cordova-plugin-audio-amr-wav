@@ -6,7 +6,7 @@
 
 <license>HDU</license>
 
-<keywords>amr,wav</keywords>
+<keywords>amr,wav,AmrToWav,WavToAmr</keywords>
 
 <description>Native interface to convert media type between wav and amr.</description>
 
@@ -30,5 +30,18 @@
 
 	<header-file src="src/ios/ConvertMedia.h" />
 	<source-file src="src/ios/ConvertMedia.m" />
+    
+    <header-file src="src/ios/VoiceConvert/VoiceConverter.h" />
+    <source-file src="src/ios/VoiceConvert/VoiceConverter.mm" />
+    <header-file src="src/ios/VoiceConvert/amrwapper/amrFileCodec.h" />
+    <source-file src="src/ios/VoiceConvert/amrwapper/amrFileCodec.mm" />
+    <header-file src="src/ios/VoiceConvert/opencore-amrnb/interf_dec.h" />
+    <header-file src="src/ios/VoiceConvert/opencore-amrnb/interf_enc.h" />
+    <header-file src="src/ios/VoiceConvert/opencore-amrwb/dec_if.h" />
+    <header-file src="src/ios/VoiceConvert/opencore-amrwb/if_rom.h" />
+    <source-file src="src/ios/VoiceConvert/lib/libopencore-amrnb.a" framework="true" />
+    <source-file src="src/ios/VoiceConvert/lib/libopencore-amrwb.a" framework="true" />
+    
+    <framework src="AVFoundation.framework" />
 </platform>
 </plugin>
