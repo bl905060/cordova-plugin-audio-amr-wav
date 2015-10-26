@@ -6,7 +6,7 @@ module.exports = {
                      "startRecord",
                      [param]);*/
         alert(1);
-    }
+    },
     
     stop: function(param, successCallback, errorCallback) {
         /*cordova.exec(successCallback,
@@ -15,7 +15,7 @@ module.exports = {
                      "stopRecord",
                      [param]);*/
         alert(2);
-    }
+    },
     
     play: function(audioURL, successCallback, errorCallback) {
         /*cordova.exec(successCallback,
@@ -24,7 +24,7 @@ module.exports = {
                      "playAudio",
                      [audioURL]);*/
         alert(3);
-    }
+    },
     
     convertToAmr: function(audioURL, successCallback, errorCallback) {
         /*cordova.exec(successCallback,
