@@ -1,7 +1,7 @@
 module.exports = {
-    fullPath : '',
+    //fullPath : '',
     
-    duration : '',
+    //duration : '',
     
     //record: function(param, successCallback, errorCallback)
     record: function(param, successCallback, errorCallback) {
@@ -21,14 +21,14 @@ module.exports = {
     },
     
     //stop: function(param, successCallback, errorCallback)
-    stop: function() {
+    stop: function(successCallback, errorCallback) {
         cordova.exec(successCallback,
                      errorCallback,
                      "ConvertMedia",
                      "stopRecord",
                      []);
         
-        function successCallback(results) {
+        /*function successCallback(results) {
             fullPath = results.fullPath;
             duration = results.duration;
             //alert(fullPath);
@@ -37,10 +37,7 @@ module.exports = {
         
         function errorCallback(error) {
             console.log(error);
-        }
-        
-        console.log(fullPath);
-        console.log(duration);
+        }*/
     },
     
     play: function(audioURL, successCallback, errorCallback) {
