@@ -1,7 +1,7 @@
 module.exports = {
-    //fullPath : '',
+    fullPath : '',
     
-    //duration : '',
+    duration : '',
     
     //record: function(param, successCallback, errorCallback)
     record: function(param, successCallback, errorCallback) {
@@ -31,8 +31,8 @@ module.exports = {
         function successCallback(results) {
             fullPath = results.fullPath;
             duration = results.duration;
-            alert(fullPath);
-            alert(duration);
+            //alert(fullPath);
+            //alert(duration);
         }
         
         function errorCallback(error) {
