@@ -29,9 +29,10 @@ module.exports = {
                      []);
         
         function successCallback(results) {
-            alert(results);
             fullPath = results.fullPath;
             duration = results.duration;
+            alert(fullPath);
+            alert(duration);
         }
         
         function errorCallback(error) {
