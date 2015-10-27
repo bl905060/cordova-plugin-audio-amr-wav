@@ -65,7 +65,7 @@
     fullPath = [[NSString alloc] initWithFormat:@"file://%@", amrPath];
     duration = [attributes objectForKey:@"duration"];
     NSLog(@"fullPath: %@", fullPath);
-    NSLog(@"duartion: %@", duration);
+    NSLog(@"duration: %@", duration);
     
     [audioParam setObject:fullPath forKey:@"fullPath"];
     [audioParam setObject:duration forKey:@"duration"];
@@ -79,6 +79,28 @@
 
 - (void)playAudio:(CDVInvokedUrlCommand *)command {
     NSLog(@"begin to play audio file!");
+    
+    NSFileManager *file = [NSFileManager defaultManager];
+    NSMutableString *fileURL;
+    NSMutableString *wavFilePath;
+    
+    fileURL = [[NSMutableString alloc] initWithString:[[command arguments] objectAtIndex:0]];
+    [fileURL deleteCharactersInRange:NSMakeRange(0, 7)];
+    wavFilePath = [[NSMutableString alloc] initWithString:[fileURL stringByReplacingOccurrencesOfString:@"amr" withString:@"wav"]];
+    NSLog(@"audioURL: %@", fileURL);
+    NSLog(@"wavFilePath: %@", wavFilePath);
+    
+    if ([file fileExistsAtPath:wavFilePath]) {
+        fileURL = wavFilePath;
+    } else {
+        [VoiceConverter ConvertAmrToWav:fileURL wavSavePath:wavFilePath];
+        fileURL = wavFilePath;
+    }
+    
+    [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error:nil];
+    [[AVAudioSession sharedInstance] setActive:YES error:nil];
+    self.player = [self.player initWithContentsOfURL:[NSURL URLWithString:fileURL] error:nil];
+    [self.player play];
 }
 
 - (void)convertToAmr:(CDVInvokedUrlCommand *)command {
