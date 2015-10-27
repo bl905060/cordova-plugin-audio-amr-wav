@@ -4,38 +4,38 @@ module.exports = {
     //duration : '',
     
     //record: function(param, successCallback, errorCallback)
-    record: function() {
+    record: function(param, successCallback, errorCallback) {
         cordova.exec(successCallback,
                      errorCallback,
                      "ConvertMedia",
                      "startRecord",
                      []);
         
-        function successCallback() {
+        /*function successCallback() {
             
         }
         
         function errorCallback() {
             
-        }
+        }*/
     },
     
     //stop: function(param, successCallback, errorCallback)
-    stop: function() {
+    stop: function(param, successCallback, errorCallback) {
         cordova.exec(successCallback,
                      errorCallback,
                      "ConvertMedia",
                      "stopRecord",
                      []);
         
-        function successCallback(result) {
+        /*function successCallback(result) {
             fullPath = result.fullPath;
             duration = result.duration;
         }
         
         function errorCallback(error) {
             console.log(error);
-        }
+        }*/
     },
     
     play: function(audioURL, successCallback, errorCallback) {
