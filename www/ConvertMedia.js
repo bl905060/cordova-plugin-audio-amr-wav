@@ -1,18 +1,41 @@
 module.exports = {
-    record: function(param, successCallback, errorCallback) {
+    fullPath : '',
+    
+    duration : '',
+    
+    //record: function(param, successCallback, errorCallback)
+    record: function() {
         cordova.exec(successCallback,
                      errorCallback,
                      "ConvertMedia",
                      "startRecord",
-                     [param]);
+                     []);
+        
+        function successCallback() {
+            
+        }
+        
+        function errorCallback() {
+            
+        }
     },
     
-    stop: function(param, successCallback, errorCallback) {
+    //stop: function(param, successCallback, errorCallback)
+    stop: function() {
         cordova.exec(successCallback,
                      errorCallback,
                      "ConvertMedia",
                      "stopRecord",
-                     [param]);
+                     []);
+        
+        function successCallback(result) {
+            fullPath = result.fullPath;
+            duration = result.duration;
+        }
+        
+        function errorCallback(error) {
+            console.log(error);
+        }
     },
     
     play: function(audioURL, successCallback, errorCallback) {
@@ -28,6 +51,14 @@ module.exports = {
                      errorCallback,
                      "ConvertMedia",
                      "convertToAmr",
+                     [audioURL]);
+    }
+    
+    convertToWav: function(audioURL, successCallback, errorCallback) {
+        cordova.exec(successCallback,
+                     errorCallback,
+                     "ConvertMedia",
+                     "convertToWav",
                      [audioURL]);
     }
 };
