@@ -28,14 +28,18 @@ module.exports = {
                      "stopRecord",
                      []);
         
-        function successCallback(result) {
-            fullPath = result.fullPath;
-            duration = result.duration;
+        function successCallback(results) {
+            alert(results);
+            fullPath = results.fullPath;
+            duration = results.duration;
         }
         
         function errorCallback(error) {
             console.log(error);
         }
+        
+        console.log(fullPath);
+        console.log(duration);
     },
     
     play: function(audioURL, successCallback, errorCallback) {

@@ -41,6 +41,11 @@
     NSLog(@"begin to stop record!");
     
     NSString *callbackID = [command callbackId];
+    NSMutableDictionary *audioParam = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary *attributes = [[NSMutableDictionary alloc] init];
+    NSString *amrPath = [[NSString alloc] init];
+    NSString *fullPath;
+    NSString *duration;
     
     if (self.recorder.isRecording){//录音中
         //停止录音
@@ -48,13 +53,28 @@
         [KVNProgress showSuccessWithStatus:@"录音完成"];
         
         //开始转换格式
-        NSString *amrPath = [self GetPathByFileName:self.recordFileName ofType:@"amr"];
+        amrPath = [self GetPathByFileName:self.recordFileName ofType:@"amr"];
         
         self.player = [self.player initWithContentsOfURL:[NSURL URLWithString:self.recordFilePath] error:nil];
         
 #pragma wav转amr
         [VoiceConverter ConvertWavToAmr:self.recordFilePath amrSavePath:amrPath];
     }
+    
+    attributes = [self getVoiceFileInfoByPath:self.recordFilePath];
+    fullPath = [[NSString alloc] initWithFormat:@"file://%@", amrPath];
+    duration = [attributes objectForKey:@"duration"];
+    NSLog(@"fullPath: %@", fullPath);
+    NSLog(@"duartion: %@", duration);
+    
+    [audioParam setObject:fullPath forKey:@"fullPath"];
+    [audioParam setObject:duration forKey:@"duration"];
+    
+    CDVPluginResult *pluginResult = [CDVPluginResult
+                                     resultWithStatus:CDVCommandStatus_OK
+                                     messageAsDictionary:audioParam];
+    
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
 }
 
 - (void)playAudio:(CDVInvokedUrlCommand *)command {
@@ -70,14 +90,14 @@
 }
 
 #pragma mark - 生成当前时间字符串
-- (NSString*)GetCurrentTimeString{
+- (NSString *)GetCurrentTimeString{
     NSDateFormatter *dateformat = [[NSDateFormatter  alloc]init];
     [dateformat setDateFormat:@"yyyyMMddHHmmss"];
     return [dateformat stringFromDate:[NSDate date]];
 }
 
 #pragma mark - 生成文件路径
-- (NSString*)GetPathByFileName:(NSString *)_fileName ofType:(NSString *)_type {
+- (NSString *)GetPathByFileName:(NSString *)fileName ofType:(NSString *)type {
     NSFileManager *filePath = [NSFileManager defaultManager];
     NSString *directory = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES)objectAtIndex:0];
     
@@ -90,42 +110,32 @@
                                   error:nil];
     }
     
-    NSString *fileDirectory = [[[directory stringByAppendingPathComponent:_fileName]
-                                stringByAppendingPathExtension:_type]
+    NSString *filePathStr = [[[directory stringByAppendingPathComponent:fileName]
+                                stringByAppendingPathExtension:type]
                                stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-    return fileDirectory;
+    return filePathStr;
 }
 
 #pragma mark - 获取音频文件信息
-- (NSString *)getVoiceFileInfoByPath:(NSString *)aFilePath convertTime:(NSTimeInterval)aConTime{
+- (NSMutableDictionary *)getVoiceFileInfoByPath:(NSString *)filePath {
+    NSFileManager *filemanager = [[NSFileManager alloc] init];
+    NSMutableDictionary *attributes;
+    NSString *duration;
     
-    NSInteger size = [self getFileSize:aFilePath]/1024;
-    NSString *info = [NSString stringWithFormat:@"文件名:%@\n文件大小:%ldkb\n",aFilePath.lastPathComponent,(long)size];
+    if ([filemanager fileExistsAtPath:filePath]) {
+        attributes = [[NSMutableDictionary alloc] initWithDictionary:[filemanager attributesOfItemAtPath:filePath error:nil]];
+    }
     
-    NSRange range = [aFilePath rangeOfString:@"wav"];
+    NSRange range = [filePath rangeOfString:@"wav"];
     if (range.length > 0) {
-        AVAudioPlayer *play = [[AVAudioPlayer alloc]initWithContentsOfURL:[NSURL URLWithString:aFilePath] error:nil];
-        info = [info stringByAppendingFormat:@"文件时长:%f\n",play.duration];
+        AVAudioPlayer *play = [[AVAudioPlayer alloc]initWithContentsOfURL:[NSURL URLWithString:filePath] error:nil];
+        duration = [[NSString alloc] initWithFormat:@"%d", (int)play.duration];
     }
     
-    if (aConTime > 0)
-        info = [info stringByAppendingFormat:@"转换时间:%f",aConTime];
-    return info;
-}
-
-#pragma mark - 获取文件大小
-- (NSInteger) getFileSize:(NSString*) path{
-    NSFileManager * filemanager = [[NSFileManager alloc]init];
-    if([filemanager fileExistsAtPath:path]){
-        NSDictionary * attributes = [filemanager attributesOfItemAtPath:path error:nil];
-        NSNumber *theFileSize;
-        if ( (theFileSize = [attributes objectForKey:NSFileSize]) )
-            return  [theFileSize intValue];
-        else
-            return -1;
-    }
-    else{
-        return -1;
-    }
+    [attributes setObject:duration forKey:@"duration"];
+    
+    NSLog(@"%@", attributes);
+    
+    return attributes;
 }
 @end
