@@ -5,7 +5,7 @@ module.exports = {
     
     //record: function(param, successCallback, errorCallback)
     record: function(param, successCallback, errorCallback) {
-        console.log("record");
+        alert("record");
         
         cordova.exec(successCallback,
                      errorCallback,
@@ -24,7 +24,7 @@ module.exports = {
     
     //stop: function(param, successCallback, errorCallback)
     stop: function(param, successCallback, errorCallback) {
-        console.log("stop");
+        alert("stop");
         
         cordova.exec(successCallback,
                      errorCallback,
@@ -43,7 +43,7 @@ module.exports = {
     },
     
     play: function(audioURL, successCallback, errorCallback) {
-        console.log("play");
+        alert("play");
         
         cordova.exec(successCallback,
                      errorCallback,
@@ -58,7 +58,7 @@ module.exports = {
                      "ConvertMedia",
                      "convertToAmr",
                      [audioURL]);
-    }
+    },
     
     convertToWav: function(audioURL, successCallback, errorCallback) {
         cordova.exec(successCallback,
