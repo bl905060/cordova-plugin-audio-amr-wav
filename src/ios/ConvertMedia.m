@@ -16,24 +16,42 @@
 
 - (void)startRecord:(CDVInvokedUrlCommand *)command {
     NSLog(@"begin to start record!");
-    [KVNProgress showWithStatus:@"正在录音"];
     
-    self.recordFileName = [self GetCurrentTimeString];
-    //获取路径
-    self.recordFilePath = [self GetPathByFileName:self.recordFileName ofType:@"wav"];
-    NSLog(@"%@", self.recordFilePath);
+    NSError *recordError = [[NSError alloc] init];
+    NSString *callbackID = [command callbackId];
+    CDVPluginResult *pluginResult;
     
-    //初始化录音
-    self.recorder = [[AVAudioRecorder alloc]initWithURL:[NSURL fileURLWithPath:self.recordFilePath]
-                                               settings:[VoiceConverter GetAudioRecorderSettingDict]
-                                                  error:nil];
-    
-    //准备录音
-    if ([self.recorder prepareToRecord]) {
-        [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryRecord error:nil];
-        [[AVAudioSession sharedInstance] setActive:YES error:nil];
-        //开始录音
-        [self.recorder record];
+    if (self.recorder.isRecording) {
+        NSLog(@"recorder is alread working!");
+        
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                         messageAsString:@"recorder is alread working!"];
+        
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
+    } else {
+        [KVNProgress showWithStatus:@"正在录音"];
+        
+        self.recordFileName = [self GetCurrentTimeString];
+        //获取路径
+        self.recordFilePath = [self GetPathByFileName:self.recordFileName ofType:@"wav"];
+        NSLog(@"%@", self.recordFilePath);
+        
+        //初始化录音
+        self.recorder = [[AVAudioRecorder alloc]initWithURL:[NSURL fileURLWithPath:self.recordFilePath]
+                                                   settings:[VoiceConverter GetAudioRecorderSettingDict]
+                                                      error:nil];
+        
+        //准备录音
+        if ([self.recorder prepareToRecord]) {
+            [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryRecord error:&recordError];
+            [[AVAudioSession sharedInstance] setActive:YES error:&recordError];
+            //开始录音
+            [self.recorder record];
+            
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+            
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
+        }
     }
 }
 
@@ -47,8 +65,9 @@
     NSString *fullPath;
     NSString *duration;
     NSString *voiceID;
+    CDVPluginResult *pluginResult;
     
-    if (self.recorder.isRecording){//录音中
+    if (self.recorder.isRecording) {//录音中
         //停止录音
         [self.recorder stop];
         [KVNProgress showSuccessWithStatus:@"录音完成"];
@@ -73,9 +92,15 @@
         [audioParam setObject:duration forKey:@"duration"];
         [audioParam setObject:voiceID forKey:@"voiceID"];
         
-        CDVPluginResult *pluginResult = [CDVPluginResult
-                                         resultWithStatus:CDVCommandStatus_OK
-                                         messageAsDictionary:audioParam];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
+                                     messageAsDictionary:audioParam];
+        
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
+    } else {
+        NSLog(@"recorder is not working!");
+        
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                         messageAsString:@"recorder is not working!"];
         
         [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
     }
@@ -87,33 +112,127 @@
     NSFileManager *file = [NSFileManager defaultManager];
     NSMutableString *fileURL;
     NSMutableString *wavFilePath;
+    CDVPluginResult *pluginResult;
+    NSString *callbackID = [command callbackId];
+    NSString *errorStr = [[NSString alloc] init];
     
     fileURL = [[NSMutableString alloc] initWithString:[[command arguments] objectAtIndex:0]];
-    [fileURL deleteCharactersInRange:NSMakeRange(0, 7)];
-    wavFilePath = [[NSMutableString alloc] initWithString:[fileURL stringByReplacingOccurrencesOfString:@"amr" withString:@"wav"]];
-    NSLog(@"audioURL: %@", fileURL);
-    NSLog(@"wavFilePath: %@", wavFilePath);
-    
-    if ([file fileExistsAtPath:wavFilePath]) {
-        fileURL = wavFilePath;
+    NSRange amrRange = [fileURL rangeOfString:@"amr"];
+    NSRange wavRange = [fileURL rangeOfString:@"wav"];
+    if (amrRange.length > 0) {
+        [fileURL deleteCharactersInRange:NSMakeRange(0, 7)];
+        wavFilePath = [[NSMutableString alloc] initWithString:[fileURL stringByReplacingOccurrencesOfString:@"amr" withString:@"wav"]];
+        NSLog(@"audioURL: %@", fileURL);
+        NSLog(@"wavFilePath: %@", wavFilePath);
+        
+        if ([file fileExistsAtPath:wavFilePath]) {
+            fileURL = wavFilePath;
+        } else {
+            [VoiceConverter ConvertAmrToWav:fileURL wavSavePath:wavFilePath];
+            fileURL = wavFilePath;
+        }
+        
+        [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error:nil];
+        [[AVAudioSession sharedInstance] setActive:YES error:nil];
+        self.player = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL URLWithString:fileURL] error:nil];
+        NSLog(@"%@", fileURL);
+        [self.player play];
+    } else if (wavRange.length > 0) {
+        [fileURL deleteCharactersInRange:NSMakeRange(0, 7)];
+        
+        if ([file fileExistsAtPath:fileURL]) {
+            [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error:nil];
+            [[AVAudioSession sharedInstance] setActive:YES error:nil];
+            self.player = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL URLWithString:fileURL] error:nil];
+            NSLog(@"%@", fileURL);
+            [self.player play];
+        } else {
+            errorStr = @"file is not exist!";
+        }
     } else {
-        [VoiceConverter ConvertAmrToWav:fileURL wavSavePath:wavFilePath];
-        fileURL = wavFilePath;
+        errorStr = @"file URL is wrong!";
     }
     
-    [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error:nil];
-    [[AVAudioSession sharedInstance] setActive:YES error:nil];
-    self.player = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL URLWithString:fileURL] error:nil];
-    NSLog(@"%@", fileURL);
-    [self.player play];
+    if (errorStr != nil) {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorStr];
+        
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
+    } else {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
+    }
 }
 
 - (void)convertToAmr:(CDVInvokedUrlCommand *)command {
     NSLog(@"begin to convert audio to amr");
+    
+    NSString *callbackID = [command callbackId];
+    NSString *errorStr = [[NSString alloc] init];
+    NSFileManager *file = [NSFileManager defaultManager];
+    NSMutableString *wavFilePath;
+    NSMutableString *fileURL;
+    CDVPluginResult *pluginResult;
+    
+    fileURL = [[NSMutableString alloc] initWithString:[[command arguments] objectAtIndex:0]];
+    NSRange amrRange = [fileURL rangeOfString:@"amr"];
+    if (amrRange.length > 0) {
+        [fileURL deleteCharactersInRange:NSMakeRange(0, 7)];
+        wavFilePath = [[NSMutableString alloc] initWithString:[fileURL stringByReplacingOccurrencesOfString:@"amr" withString:@"wav"]];
+        if ([file fileExistsAtPath:fileURL]) {
+            [VoiceConverter ConvertAmrToWav:fileURL wavSavePath:wavFilePath];
+        } else {
+            errorStr = @"amr file is not exist!";
+        }
+    } else {
+        errorStr = @"file URL is wrong!";
+    }
+    
+    if (errorStr != nil) {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorStr];
+        
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
+    } else {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
+    }
 }
 
 - (void)convertToWav:(CDVInvokedUrlCommand *)command {
     NSLog(@"begin to convert audio to wav");
+    
+    
+    NSString *callbackID = [command callbackId];
+    NSString *errorStr = [[NSString alloc] init];
+    NSFileManager *file = [NSFileManager defaultManager];
+    NSMutableString *amrFilePath;
+    NSMutableString *fileURL;
+    CDVPluginResult *pluginResult;
+    
+    fileURL = [[NSMutableString alloc] initWithString:[[command arguments] objectAtIndex:0]];
+    NSRange amrRange = [fileURL rangeOfString:@"wav"];
+    if (amrRange.length > 0) {
+        [fileURL deleteCharactersInRange:NSMakeRange(0, 7)];
+        amrFilePath = [[NSMutableString alloc] initWithString:[fileURL stringByReplacingOccurrencesOfString:@"wav" withString:@"amr"]];
+        if ([file fileExistsAtPath:fileURL]) {
+            [VoiceConverter ConvertAmrToWav:fileURL wavSavePath:amrFilePath];
+        } else {
+            errorStr = @"wav file is not exist!";
+        }
+    } else {
+        errorStr = @"file URL is wrong!";
+    }
+    
+    if (errorStr != nil) {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorStr];
+        
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
+    } else {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
+    }
 }
 
 #pragma mark - 生成当前时间字符串
@@ -138,8 +257,8 @@
     }
     
     NSString *filePathStr = [[[directory stringByAppendingPathComponent:fileName]
-                              stringByAppendingPathExtension:type]
-                             stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+                                stringByAppendingPathExtension:type]
+                               stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
     return filePathStr;
 }
 
