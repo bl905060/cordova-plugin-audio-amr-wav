@@ -30,7 +30,7 @@
     
     //准备录音
     if ([self.recorder prepareToRecord]) {
-        [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayAndRecord error:nil];
+        [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryRecord error:nil];
         [[AVAudioSession sharedInstance] setActive:YES error:nil];
         //开始录音
         [self.recorder record];
@@ -46,6 +46,7 @@
     NSString *amrPath = [[NSString alloc] init];
     NSString *fullPath;
     NSString *duration;
+    NSString *voiceID;
     
     if (self.recorder.isRecording){//录音中
         //停止录音
@@ -59,22 +60,25 @@
         
 #pragma wav转amr
         [VoiceConverter ConvertWavToAmr:self.recordFilePath amrSavePath:amrPath];
+        
+        attributes = [self getVoiceFileInfoByPath:self.recordFilePath];
+        fullPath = [[NSString alloc] initWithFormat:@"file://%@", amrPath];
+        duration = [attributes objectForKey:@"duration"];
+        voiceID = [[NSString alloc] initWithString:self.recordFileName];
+        NSLog(@"fullPath: %@", fullPath);
+        NSLog(@"duration: %@", duration);
+        NSLog(@"voiceID: %@", voiceID);
+        
+        [audioParam setObject:fullPath forKey:@"fullPath"];
+        [audioParam setObject:duration forKey:@"duration"];
+        [audioParam setObject:voiceID forKey:@"voiceID"];
+        
+        CDVPluginResult *pluginResult = [CDVPluginResult
+                                         resultWithStatus:CDVCommandStatus_OK
+                                         messageAsDictionary:audioParam];
+        
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
     }
-    
-    attributes = [self getVoiceFileInfoByPath:self.recordFilePath];
-    fullPath = [[NSString alloc] initWithFormat:@"file://%@", amrPath];
-    duration = [attributes objectForKey:@"duration"];
-    NSLog(@"fullPath: %@", fullPath);
-    NSLog(@"duration: %@", duration);
-    
-    [audioParam setObject:fullPath forKey:@"fullPath"];
-    [audioParam setObject:duration forKey:@"duration"];
-    
-    CDVPluginResult *pluginResult = [CDVPluginResult
-                                     resultWithStatus:CDVCommandStatus_OK
-                                     messageAsDictionary:audioParam];
-    
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
 }
 
 - (void)playAudio:(CDVInvokedUrlCommand *)command {
@@ -99,7 +103,8 @@
     
     [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error:nil];
     [[AVAudioSession sharedInstance] setActive:YES error:nil];
-    self.player = [self.player initWithContentsOfURL:[NSURL URLWithString:fileURL] error:nil];
+    self.player = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL URLWithString:fileURL] error:nil];
+    NSLog(@"%@", fileURL);
     [self.player play];
 }
 
@@ -133,8 +138,8 @@
     }
     
     NSString *filePathStr = [[[directory stringByAppendingPathComponent:fileName]
-                                stringByAppendingPathExtension:type]
-                               stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+                              stringByAppendingPathExtension:type]
+                             stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
     return filePathStr;
 }
 
