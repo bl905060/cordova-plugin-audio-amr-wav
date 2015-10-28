@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
-	id="cordova-plugin-audio-amr-wav" version="1.0.1">
+	id="cordova-plugin-audio-amr-wav" version="1.0.2">
 
 <name>record audio with amr or wav</name>
 
