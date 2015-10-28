@@ -165,7 +165,7 @@
 }
 
 - (void)convertToAmr:(CDVInvokedUrlCommand *)command {
-    NSLog(@"begin to convert audio to amr");
+    /*NSLog(@"begin to convert audio to amr");
     
     NSString *callbackID = [command callbackId];
     NSString *errorStr = [[NSString alloc] init];
@@ -196,12 +196,11 @@
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         
         [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
-    }
+    }*/
 }
 
 - (void)convertToWav:(CDVInvokedUrlCommand *)command {
-    NSLog(@"begin to convert audio to wav");
-    
+    /*NSLog(@"begin to convert audio to wav");
     
     NSString *callbackID = [command callbackId];
     NSString *errorStr = [[NSString alloc] init];
@@ -232,7 +231,7 @@
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         
         [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
-    }
+    }*/
 }
 
 #pragma mark - 生成当前时间字符串
