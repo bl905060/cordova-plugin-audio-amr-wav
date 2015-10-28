@@ -165,7 +165,42 @@
 }
 
 - (void)convertToAmr:(CDVInvokedUrlCommand *)command {
-    /*NSLog(@"begin to convert audio to amr");
+    NSLog(@"begin to convert audio to amr");
+    
+    NSString *callbackID = [command callbackId];
+    NSString *errorStr = [[NSString alloc] init];
+    NSFileManager *file = [NSFileManager defaultManager];
+    NSMutableString *amrFilePath;
+    NSMutableString *fileURL;
+    CDVPluginResult *pluginResult;
+    
+    fileURL = [[NSMutableString alloc] initWithString:[[command arguments] objectAtIndex:0]];
+    NSRange amrRange = [fileURL rangeOfString:@"wav"];
+    if (amrRange.length > 0) {
+        [fileURL deleteCharactersInRange:NSMakeRange(0, 7)];
+        amrFilePath = [[NSMutableString alloc] initWithString:[fileURL stringByReplacingOccurrencesOfString:@"wav" withString:@"amr"]];
+        if ([file fileExistsAtPath:fileURL]) {
+            [VoiceConverter ConvertWavToAmr:fileURL amrSavePath:amrFilePath];
+        } else {
+            errorStr = @"amr file is not exist!";
+        }
+    } else {
+        errorStr = @"file URL is wrong!";
+    }
+    
+    if (errorStr.length != 0) {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorStr];
+        
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
+    } else {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
+    }
+}
+
+- (void)convertToWav:(CDVInvokedUrlCommand *)command {
+    NSLog(@"begin to convert audio to wav");
     
     NSString *callbackID = [command callbackId];
     NSString *errorStr = [[NSString alloc] init];
@@ -182,48 +217,13 @@
         if ([file fileExistsAtPath:fileURL]) {
             [VoiceConverter ConvertAmrToWav:fileURL wavSavePath:wavFilePath];
         } else {
-            errorStr = @"amr file is not exist!";
-        }
-    } else {
-        errorStr = @"file URL is wrong!";
-    }
-    
-    if (errorStr != nil) {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorStr];
-        
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
-    } else {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-        
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
-    }*/
-}
-
-- (void)convertToWav:(CDVInvokedUrlCommand *)command {
-    /*NSLog(@"begin to convert audio to wav");
-    
-    NSString *callbackID = [command callbackId];
-    NSString *errorStr = [[NSString alloc] init];
-    NSFileManager *file = [NSFileManager defaultManager];
-    NSMutableString *amrFilePath;
-    NSMutableString *fileURL;
-    CDVPluginResult *pluginResult;
-    
-    fileURL = [[NSMutableString alloc] initWithString:[[command arguments] objectAtIndex:0]];
-    NSRange amrRange = [fileURL rangeOfString:@"wav"];
-    if (amrRange.length > 0) {
-        [fileURL deleteCharactersInRange:NSMakeRange(0, 7)];
-        amrFilePath = [[NSMutableString alloc] initWithString:[fileURL stringByReplacingOccurrencesOfString:@"wav" withString:@"amr"]];
-        if ([file fileExistsAtPath:fileURL]) {
-            [VoiceConverter ConvertAmrToWav:fileURL wavSavePath:amrFilePath];
-        } else {
             errorStr = @"wav file is not exist!";
         }
     } else {
         errorStr = @"file URL is wrong!";
     }
     
-    if (errorStr != nil) {
+    if (errorStr.length != 0) {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorStr];
         
         [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
@@ -231,7 +231,7 @@
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         
         [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
-    }*/
+    }
 }
 
 #pragma mark - 生成当前时间字符串
