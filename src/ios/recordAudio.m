@@ -10,7 +10,7 @@
 #import "VoiceConverter.h"
 #import <AVFoundation/AVFoundation.h>
 #import <AudioToolbox/AudioToolbox.h>
-#import "ConvertMedia.h"
+#import "recordAudio.h"
 
 @implementation recordAudio
 
