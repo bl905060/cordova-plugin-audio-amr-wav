@@ -1,5 +1,5 @@
 //
-//  ConvertMedia.m
+//  recordAudio.m
 //  myPushApp
 //
 //  Created by LEIBI on 10/27/15.
@@ -12,7 +12,7 @@
 #import <AudioToolbox/AudioToolbox.h>
 #import "ConvertMedia.h"
 
-@implementation ConvertMedia
+@implementation recordAudio
 
 - (void)startRecord:(CDVInvokedUrlCommand *)command {
     NSLog(@"begin to start record!");

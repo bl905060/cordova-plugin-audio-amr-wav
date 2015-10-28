@@ -1,1 +1,1 @@
-# cn.edu.hdu.cordova.convert.media
+# cordova-plugin-audio-amr-wav

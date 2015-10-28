@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
-	id="cn.edu.hdu.cordova.convert.media" version="0.0.1">
+	id="cordova-plugin-audio-amr-wav" version="1.0.0">
 
-<name>Cordova media convert plugin</name>
+<name>record audio with amr or wav</name>
 
 <license>HDU</license>
 
 <keywords>amr,wav,AmrToWav,WavToAmr</keywords>
 
-<description>Native interface to convert media type between wav and amr.</description>
+<description>Native interface to record audio with wav and convert to amr.</description>
 
 <author>Leibi</author>
 
@@ -16,20 +16,20 @@
 	<engine name="cordova" version=">=3.3.0" />
 </engines>
 
-<js-module src="www/ConvertMedia.js" name="ConvertMedia.js">
-	<clobbers target="ConvertMedia" />
+<js-module src="www/recordAudio.js" name="recordAudio.js">
+	<clobbers target="recordAudio" />
 </js-module>
 
 <!-- ios -->
 <platform name="ios">
 	<config-file target="config.xml" parent="/widget">
-		<feature name="ConvertMedia">
-			<param name="ios-package" value="ConvertMedia" />
+		<feature name="recordAudio">
+			<param name="ios-package" value="recordAudio" />
 		</feature>
 	</config-file>
 
-	<header-file src="src/ios/ConvertMedia.h" />
-	<source-file src="src/ios/ConvertMedia.m" />
+	<header-file src="src/ios/recordAudio.h" />
+	<source-file src="src/ios/recordAudio.m" />
     
     <header-file src="src/ios/VoiceConvert/VoiceConverter.h" />
     <source-file src="src/ios/VoiceConvert/VoiceConverter.mm" />
