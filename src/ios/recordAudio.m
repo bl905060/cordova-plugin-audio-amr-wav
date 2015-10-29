@@ -170,17 +170,36 @@
     NSString *callbackID = [command callbackId];
     NSString *errorStr = [[NSString alloc] init];
     NSFileManager *file = [NSFileManager defaultManager];
+    NSMutableDictionary *audioParam = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary *attributes = [[NSMutableDictionary alloc] init];
     NSMutableString *amrFilePath;
+    NSMutableString *amrFileName;
     NSMutableString *fileURL;
     CDVPluginResult *pluginResult;
+    NSString *fullPath;
+    NSString *duration;
+    NSString *voiceID;
     
     fileURL = [[NSMutableString alloc] initWithString:[[command arguments] objectAtIndex:0]];
     NSRange amrRange = [fileURL rangeOfString:@"wav"];
-    if (amrRange.length > 0) {
+    if ((amrRange.length > 0) & [fileURL hasPrefix:@"file://"]) {
         [fileURL deleteCharactersInRange:NSMakeRange(0, 7)];
         amrFilePath = [[NSMutableString alloc] initWithString:[fileURL stringByReplacingOccurrencesOfString:@"wav" withString:@"amr"]];
         if ([file fileExistsAtPath:fileURL]) {
             [VoiceConverter ConvertWavToAmr:fileURL amrSavePath:amrFilePath];
+            attributes = [self getVoiceFileInfoByPath:fileURL];
+            fullPath = [[NSString alloc] initWithFormat:@"file://%@", amrFilePath];
+            duration = [attributes objectForKey:@"duration"];
+            amrFileName = [NSMutableString stringWithString:[amrFilePath lastPathComponent]];
+            [amrFileName deleteCharactersInRange:[amrFileName rangeOfString:@".amr"]];
+            voiceID = [[NSString alloc] initWithString:amrFileName];
+            NSLog(@"fullPath: %@", fullPath);
+            NSLog(@"duration: %@", duration);
+            NSLog(@"voiceID: %@", voiceID);
+            
+            [audioParam setObject:fullPath forKey:@"fullPath"];
+            [audioParam setObject:duration forKey:@"duration"];
+            [audioParam setObject:voiceID forKey:@"voiceID"];
         } else {
             errorStr = @"amr file is not exist!";
         }
@@ -193,7 +212,7 @@
         
         [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
     } else {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:audioParam];
         
         [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
     }
@@ -205,17 +224,36 @@
     NSString *callbackID = [command callbackId];
     NSString *errorStr = [[NSString alloc] init];
     NSFileManager *file = [NSFileManager defaultManager];
+    NSMutableDictionary *audioParam = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary *attributes = [[NSMutableDictionary alloc] init];
     NSMutableString *wavFilePath;
+    NSMutableString *wavFileName;
     NSMutableString *fileURL;
     CDVPluginResult *pluginResult;
+    NSString *fullPath;
+    NSString *duration;
+    NSString *voiceID;
     
     fileURL = [[NSMutableString alloc] initWithString:[[command arguments] objectAtIndex:0]];
     NSRange amrRange = [fileURL rangeOfString:@"amr"];
-    if (amrRange.length > 0) {
+    if ((amrRange.length > 0) & [fileURL hasPrefix:@"file://"]) {
         [fileURL deleteCharactersInRange:NSMakeRange(0, 7)];
         wavFilePath = [[NSMutableString alloc] initWithString:[fileURL stringByReplacingOccurrencesOfString:@"amr" withString:@"wav"]];
         if ([file fileExistsAtPath:fileURL]) {
             [VoiceConverter ConvertAmrToWav:fileURL wavSavePath:wavFilePath];
+            attributes = [self getVoiceFileInfoByPath:wavFilePath];
+            fullPath = [[NSString alloc] initWithFormat:@"file://%@", wavFilePath];
+            duration = [attributes objectForKey:@"duration"];
+            wavFileName = [NSMutableString stringWithString:[wavFilePath lastPathComponent]];
+            [wavFileName deleteCharactersInRange:[wavFileName rangeOfString:@".wav"]];
+            voiceID = [[NSString alloc] initWithString:wavFileName];
+            NSLog(@"fullPath: %@", fullPath);
+            NSLog(@"duration: %@", duration);
+            NSLog(@"voiceID: %@", voiceID);
+            
+            [audioParam setObject:fullPath forKey:@"fullPath"];
+            [audioParam setObject:duration forKey:@"duration"];
+            [audioParam setObject:voiceID forKey:@"voiceID"];
         } else {
             errorStr = @"wav file is not exist!";
         }
@@ -228,7 +266,7 @@
         
         [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
     } else {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:audioParam];
         
         [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
     }
