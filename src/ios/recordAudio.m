@@ -70,7 +70,6 @@
     if (self.recorder.isRecording) {//录音中
         //停止录音
         [self.recorder stop];
-        [KVNProgress showSuccessWithStatus:@"录音完成"];
         
         //开始转换格式
         amrPath = [self GetPathByFileName:self.recordFileName ofType:@"amr"];
@@ -87,6 +86,9 @@
         NSLog(@"fullPath: %@", fullPath);
         NSLog(@"duration: %@", duration);
         NSLog(@"voiceID: %@", voiceID);
+        
+        NSString *progressStatus = [[NSString alloc] initWithFormat:@"录音时长为%@秒", duration];
+        [KVNProgress showSuccessWithStatus: progressStatus];
         
         [audioParam setObject:fullPath forKey:@"fullPath"];
         [audioParam setObject:duration forKey:@"duration"];
