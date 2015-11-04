@@ -77,6 +77,13 @@ function convertSuccess(results) {
 }
 ```
 
+### AMR转WAV
+
+```js
+//传入amr文件全路径时将会同时删除amr、wav格式文件，传入wav文件全路径时仅删除wav格式文件
+recordAudio.deleteAudio(audioURL);
+```
+
 ## 完整案例
 
 ```js
@@ -124,6 +131,12 @@ document.getElementById("convertToWav").addEventListener('touchstart', function(
         alert(results.duration);
         alert(results.voiceID);
     }
+}, false);
+
+//控件触碰开始时将将删除传入路径所对应的文件
+document.getElementById("deleteAudio").addEventListener('touchstart', function() {
+    var audioURL = document.getElementById("audioURL").value;
+    recordAudio.deleteAudio(audioURL);
 }, false);
 ```
 
