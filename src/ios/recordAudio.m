@@ -23,7 +23,6 @@
     
     if (self.recorder.isRecording) {
         NSLog(@"recorder is alread working!");
-        
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
                                          messageAsString:@"recorder is alread working!"];
         
@@ -100,7 +99,6 @@
         [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
     } else {
         NSLog(@"recorder is not working!");
-        
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
                                          messageAsString:@"recorder is not working!"];
         
@@ -156,10 +154,12 @@
     }
     
     if (errorStr != nil) {
+        NSLog(@"errorStr: %@", errorStr);
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorStr];
         
         [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
     } else {
+        NSLog(@"play audio is OK!");
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         
         [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
@@ -210,10 +210,12 @@
     }
     
     if (errorStr.length != 0) {
+        NSLog(@"errorStr: %@", errorStr);
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorStr];
         
         [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
     } else {
+        NSLog(@"convert audio is OK!");
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:audioParam];
         
         [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
@@ -264,10 +266,12 @@
     }
     
     if (errorStr.length != 0) {
+        NSLog(@"errorStr: %@", errorStr);
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorStr];
         
         [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
     } else {
+        NSLog(@"convert audio is OK!");
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:audioParam];
         
         [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
@@ -296,7 +300,7 @@
             if ([file fileExistsAtPath:wavFilePath]) {
                 [file removeItemAtPath:wavFilePath error:&error];
             } else {
-                errorStr = @"amr was deleted and wav file is not exist!";
+                NSLog(@"amr was deleted, but wav file is not exist!");
             }
         } else {
             errorStr = @"amr file is not exist!";
@@ -313,14 +317,18 @@
     }
     
     if (errorStr.length != 0) {
+        NSLog(@"errorStr: %@", errorStr);
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorStr];
         
         [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
     } else if (error) {
+        NSLog(@"error description: %@", [error localizedDescription]);
+        NSLog(@"error failure reason: %@", [error localizedFailureReason]);
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[error localizedDescription]];
         
         [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
     } else {
+        NSLog(@"delete audio is OK!");
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         
         [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
