@@ -77,7 +77,7 @@ function convertSuccess(results) {
 }
 ```
 
-### AMR转WAV
+### 删除音频文件
 
 ```js
 //传入amr文件全路径时将会同时删除amr、wav格式文件，传入wav文件全路径时仅删除wav格式文件
