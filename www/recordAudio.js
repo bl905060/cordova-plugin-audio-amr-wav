@@ -62,5 +62,13 @@ module.exports = {
                      "recordAudio",
                      "convertToWav",
                      [audioURL]);
+    },
+    
+    deleteAudio: function(audioURL, successCallback, errorCallback) {
+        cordova.exec(successCallback,
+                     errorCallback,
+                     "recordAudio",
+                     "deleteAudio",
+                     [audioURL]);
     }
 };
