@@ -274,6 +274,59 @@
     }
 }
 
+- (void)deleteAudio:(CDVInvokedUrlCommand *)command {
+    NSLog(@"begin to delete audio file!");
+    
+    NSString *callbackID = [command callbackId];
+    NSString *errorStr = [[NSString alloc] init];
+    NSFileManager * file = [NSFileManager defaultManager];
+    NSMutableString *wavFilePath;
+    NSMutableString *fileURL;
+    CDVPluginResult *pluginResult;
+    NSError * error;
+    
+    fileURL = [[NSMutableString alloc] initWithString:[[command arguments] objectAtIndex:0]];
+    NSRange amrRange = [fileURL rangeOfString:@"amr"];
+    NSRange wavRange = [fileURL rangeOfString:@"wav"];
+    if ((amrRange.length > 0) & [fileURL hasPrefix:@"file://"]) {
+        [fileURL deleteCharactersInRange:NSMakeRange(0, 7)];
+        wavFilePath = [[NSMutableString alloc] initWithString:[fileURL stringByReplacingOccurrencesOfString:@"amr" withString:@"wav"]];
+        if ([file fileExistsAtPath:fileURL]) {
+            [file removeItemAtPath:fileURL error:&error];
+            if ([file fileExistsAtPath:wavFilePath]) {
+                [file removeItemAtPath:wavFilePath error:&error];
+            } else {
+                errorStr = @"amr was deleted and wav file is not exist!";
+            }
+        } else {
+            errorStr = @"amr file is not exist!";
+        }
+    } else if ((wavRange.length > 0) & [fileURL hasPrefix:@"file://"]) {
+        [fileURL deleteCharactersInRange:NSMakeRange(0, 7)];
+        if ([file fileExistsAtPath:fileURL]) {
+            [file removeItemAtPath:fileURL error:&error];
+        } else {
+            errorStr = @"wav file is not exist!";
+        }
+    } else {
+        errorStr = @"file URL is wrong!";
+    }
+    
+    if (errorStr.length != 0) {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorStr];
+        
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
+    } else if (error) {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[error localizedDescription]];
+        
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
+    } else {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
+    }
+}
+
 #pragma mark - 生成当前时间字符串
 - (NSString *)GetCurrentTimeString{
     NSDateFormatter *dateformat = [[NSDateFormatter  alloc]init];
