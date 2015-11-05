@@ -17,50 +17,70 @@
 - (void)startRecord:(CDVInvokedUrlCommand *)command {
     NSLog(@"begin to start record!");
     
-    NSError *recordError = [[NSError alloc] init];
+    NSError *audioSessionError;
+    NSError *recorderInitError;
+    
+    NSString *errorStr = [[NSString alloc] init];
     NSString *callbackID = [command callbackId];
     CDVPluginResult *pluginResult;
     
     if (self.recorder.isRecording) {
-        NSLog(@"recorder is alread working!");
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
-                                         messageAsString:@"recorder is alread working!"];
-        
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
+        errorStr = @"recorder is alread working!";
     } else {
+        NSLog(@"ready to record!");
+        
         [KVNProgress showWithStatus:@"正在录音"];
         
         self.recordFileName = [self GetCurrentTimeString];
         //获取路径
         self.recordFilePath = [self GetPathByFileName:self.recordFileName ofType:@"wav"];
-        NSLog(@"%@", self.recordFilePath);
+        NSLog(@"record file path is: %@", self.recordFilePath);
         
         //初始化录音
         self.recorder = [[AVAudioRecorder alloc]initWithURL:[NSURL fileURLWithPath:self.recordFilePath]
                                                    settings:[VoiceConverter GetAudioRecorderSettingDict]
-                                                      error:nil];
+                                                      error:&recorderInitError];
         
         //准备录音
         if ([self.recorder prepareToRecord]) {
-            [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryRecord error:&recordError];
-            [[AVAudioSession sharedInstance] setActive:YES error:&recordError];
+            [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryRecord
+                                                   error:&audioSessionError];
+            [[AVAudioSession sharedInstance] setActive:YES
+                                                 error:&audioSessionError];
             //开始录音
             [self.recorder record];
-            
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-            
-            [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
         }
     }
+    
+    if (errorStr.length > 0) {
+        NSLog(@"recorder is alread working!");
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorStr];
+    } else if (recorderInitError) {
+        NSLog(@"recorder initial fail!");
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                         messageAsString:[recorderInitError localizedDescription]];
+    } else if (audioSessionError) {
+        NSLog(@"audio session set is fail!");
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                         messageAsString:[audioSessionError localizedDescription]];
+    } else {
+        NSLog(@"record is ok!");
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    }
+    
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
 }
 
 - (void)stopRecord:(CDVInvokedUrlCommand *)command {
     NSLog(@"begin to stop record!");
     
+    NSError *playerInitError;
+    
     NSString *callbackID = [command callbackId];
     NSMutableDictionary *audioParam = [[NSMutableDictionary alloc] init];
     NSMutableDictionary *attributes = [[NSMutableDictionary alloc] init];
     NSString *amrPath = [[NSString alloc] init];
+    NSString *errorStr = [[NSString alloc] init];
     NSString *fullPath;
     NSString *duration;
     NSString *voiceID;
@@ -73,7 +93,8 @@
         //开始转换格式
         amrPath = [self GetPathByFileName:self.recordFileName ofType:@"amr"];
         
-        self.player = [self.player initWithContentsOfURL:[NSURL URLWithString:self.recordFilePath] error:nil];
+        self.player = [self.player initWithContentsOfURL:[NSURL URLWithString:self.recordFilePath]
+                                                   error:&playerInitError];
         
 #pragma wav转amr
         [VoiceConverter ConvertWavToAmr:self.recordFilePath amrSavePath:amrPath];
@@ -92,22 +113,31 @@
         [audioParam setObject:fullPath forKey:@"fullPath"];
         [audioParam setObject:duration forKey:@"duration"];
         [audioParam setObject:voiceID forKey:@"voiceID"];
-        
+    } else {
+        errorStr = @"recorder is not working!";
+    }
+    
+    if (errorStr.length > 0) {
+        NSLog(@"recorder is not working!");
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorStr];
+    } else if (playerInitError) {
+        NSLog(@"player initial fail!");
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                         messageAsString:[playerInitError localizedDescription]];
+    } else {
+        NSLog(@"recoder is stoped!");
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
                                      messageAsDictionary:audioParam];
-        
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
-    } else {
-        NSLog(@"recorder is not working!");
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
-                                         messageAsString:@"recorder is not working!"];
-        
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
     }
+    
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
 }
 
 - (void)playAudio:(CDVInvokedUrlCommand *)command {
     NSLog(@"begin to play audio file!");
+    
+    NSError *audioSessionError;
+    NSError *playerInitError;
     
     NSFileManager *file = [NSFileManager defaultManager];
     NSMutableString *fileURL;
@@ -132,18 +162,24 @@
             fileURL = wavFilePath;
         }
         
-        [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error:nil];
-        [[AVAudioSession sharedInstance] setActive:YES error:nil];
-        self.player = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL URLWithString:fileURL] error:nil];
-        NSLog(@"%@", fileURL);
+        [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback
+                                               error:&audioSessionError];
+        [[AVAudioSession sharedInstance] setActive:YES
+                                             error:&audioSessionError];
+        self.player = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL URLWithString:fileURL]
+                                                             error:&playerInitError];
+        NSLog(@"audio file URL: %@", fileURL);
         [self.player play];
     } else if (wavRange.length > 0) {
         [fileURL deleteCharactersInRange:NSMakeRange(0, 7)];
         
         if ([file fileExistsAtPath:fileURL]) {
-            [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error:nil];
-            [[AVAudioSession sharedInstance] setActive:YES error:nil];
-            self.player = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL URLWithString:fileURL] error:nil];
+            [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback
+                                                   error:&audioSessionError];
+            [[AVAudioSession sharedInstance] setActive:YES
+                                                 error:&audioSessionError];
+            self.player = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL URLWithString:fileURL]
+                                                                 error:&playerInitError];
             NSLog(@"%@", fileURL);
             [self.player play];
         } else {
@@ -153,17 +189,24 @@
         errorStr = @"file URL is wrong!";
     }
     
-    if (errorStr != nil) {
+    if (errorStr.length > 0) {
         NSLog(@"errorStr: %@", errorStr);
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorStr];
-        
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                         messageAsString:errorStr];
+    } else if (audioSessionError) {
+        NSLog(@"audio session set is fail!");
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                         messageAsString:[audioSessionError localizedDescription]];
+    } else if (playerInitError) {
+        NSLog(@"player initial fail!");
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                         messageAsString:[playerInitError localizedDescription]];
     } else {
         NSLog(@"play audio is OK!");
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-        
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
     }
+    
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
 }
 
 - (void)convertToAmr:(CDVInvokedUrlCommand *)command {
@@ -211,15 +254,15 @@
     
     if (errorStr.length != 0) {
         NSLog(@"errorStr: %@", errorStr);
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorStr];
-        
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                         messageAsString:errorStr];
     } else {
         NSLog(@"convert audio is OK!");
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:audioParam];
-        
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
+                                     messageAsDictionary:audioParam];
     }
+    
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
 }
 
 - (void)convertToWav:(CDVInvokedUrlCommand *)command {
@@ -267,15 +310,15 @@
     
     if (errorStr.length != 0) {
         NSLog(@"errorStr: %@", errorStr);
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorStr];
-        
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                         messageAsString:errorStr];
     } else {
         NSLog(@"convert audio is OK!");
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:audioParam];
-        
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
+                                     messageAsDictionary:audioParam];
     }
+    
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
 }
 
 - (void)deleteAudio:(CDVInvokedUrlCommand *)command {
@@ -319,20 +362,16 @@
     if (errorStr.length != 0) {
         NSLog(@"errorStr: %@", errorStr);
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorStr];
-        
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
     } else if (error) {
         NSLog(@"error description: %@", [error localizedDescription]);
         NSLog(@"error failure reason: %@", [error localizedFailureReason]);
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[error localizedDescription]];
-        
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
     } else {
         NSLog(@"delete audio is OK!");
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-        
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
     }
+    
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
 }
 
 #pragma mark - 生成当前时间字符串
