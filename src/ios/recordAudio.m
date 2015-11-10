@@ -146,47 +146,51 @@
     NSString *callbackID = [command callbackId];
     NSString *errorStr = [[NSString alloc] init];
     
-    fileURL = [[NSMutableString alloc] initWithString:[[command arguments] objectAtIndex:0]];
-    NSRange amrRange = [fileURL rangeOfString:@"amr"];
-    NSRange wavRange = [fileURL rangeOfString:@"wav"];
-    if (amrRange.length > 0) {
-        [fileURL deleteCharactersInRange:NSMakeRange(0, 7)];
-        wavFilePath = [[NSMutableString alloc] initWithString:[fileURL stringByReplacingOccurrencesOfString:@"amr" withString:@"wav"]];
-        NSLog(@"audioURL: %@", fileURL);
-        NSLog(@"wavFilePath: %@", wavFilePath);
-        
-        if ([file fileExistsAtPath:wavFilePath]) {
-            fileURL = wavFilePath;
-        } else {
-            [VoiceConverter ConvertAmrToWav:fileURL wavSavePath:wavFilePath];
-            fileURL = wavFilePath;
-        }
-        
-        [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback
-                                               error:&audioSessionError];
-        [[AVAudioSession sharedInstance] setActive:YES
-                                             error:&audioSessionError];
-        self.player = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL URLWithString:fileURL]
-                                                             error:&playerInitError];
-        NSLog(@"audio file URL: %@", fileURL);
-        [self.player play];
-    } else if (wavRange.length > 0) {
-        [fileURL deleteCharactersInRange:NSMakeRange(0, 7)];
-        
-        if ([file fileExistsAtPath:fileURL]) {
+    if ([[[command arguments] objectAtIndex:0] isKindOfClass:[NSString class]]) {
+        fileURL = [[NSMutableString alloc] initWithString:[[command arguments] objectAtIndex:0]];
+        NSRange amrRange = [fileURL rangeOfString:@"amr"];
+        NSRange wavRange = [fileURL rangeOfString:@"wav"];
+        if (amrRange.length > 0) {
+            [fileURL deleteCharactersInRange:NSMakeRange(0, 7)];
+            wavFilePath = [[NSMutableString alloc] initWithString:[fileURL stringByReplacingOccurrencesOfString:@"amr" withString:@"wav"]];
+            NSLog(@"audioURL: %@", fileURL);
+            NSLog(@"wavFilePath: %@", wavFilePath);
+            
+            if ([file fileExistsAtPath:wavFilePath]) {
+                fileURL = wavFilePath;
+            } else {
+                [VoiceConverter ConvertAmrToWav:fileURL wavSavePath:wavFilePath];
+                fileURL = wavFilePath;
+            }
+            
             [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback
                                                    error:&audioSessionError];
             [[AVAudioSession sharedInstance] setActive:YES
                                                  error:&audioSessionError];
             self.player = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL URLWithString:fileURL]
                                                                  error:&playerInitError];
-            NSLog(@"%@", fileURL);
+            NSLog(@"audio file URL: %@", fileURL);
             [self.player play];
+        } else if (wavRange.length > 0) {
+            [fileURL deleteCharactersInRange:NSMakeRange(0, 7)];
+            
+            if ([file fileExistsAtPath:fileURL]) {
+                [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback
+                                                       error:&audioSessionError];
+                [[AVAudioSession sharedInstance] setActive:YES
+                                                     error:&audioSessionError];
+                self.player = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL URLWithString:fileURL]
+                                                                     error:&playerInitError];
+                NSLog(@"%@", fileURL);
+                [self.player play];
+            } else {
+                errorStr = @"file is not exist!";
+            }
         } else {
-            errorStr = @"file is not exist!";
+            errorStr = @"file URL is wrong!";
         }
     } else {
-        errorStr = @"file URL is wrong!";
+        errorStr = @"audio URL must be a string variable!";
     }
     
     if (errorStr.length > 0) {
@@ -225,31 +229,35 @@
     NSString *duration;
     NSString *voiceID;
     
-    fileURL = [[NSMutableString alloc] initWithString:[[command arguments] objectAtIndex:0]];
-    NSRange amrRange = [fileURL rangeOfString:@"wav"];
-    if ((amrRange.length > 0) & [fileURL hasPrefix:@"file://"]) {
-        [fileURL deleteCharactersInRange:NSMakeRange(0, 7)];
-        amrFilePath = [[NSMutableString alloc] initWithString:[fileURL stringByReplacingOccurrencesOfString:@"wav" withString:@"amr"]];
-        if ([file fileExistsAtPath:fileURL]) {
-            [VoiceConverter ConvertWavToAmr:fileURL amrSavePath:amrFilePath];
-            attributes = [self getVoiceFileInfoByPath:fileURL];
-            fullPath = [[NSString alloc] initWithFormat:@"file://%@", amrFilePath];
-            duration = [attributes objectForKey:@"duration"];
-            amrFileName = [NSMutableString stringWithString:[amrFilePath lastPathComponent]];
-            [amrFileName deleteCharactersInRange:[amrFileName rangeOfString:@".amr"]];
-            voiceID = [[NSString alloc] initWithString:amrFileName];
-            NSLog(@"fullPath: %@", fullPath);
-            NSLog(@"duration: %@", duration);
-            NSLog(@"voiceID: %@", voiceID);
-            
-            [audioParam setObject:fullPath forKey:@"fullPath"];
-            [audioParam setObject:duration forKey:@"duration"];
-            [audioParam setObject:voiceID forKey:@"voiceID"];
+    if ([[[command arguments] objectAtIndex:0] isKindOfClass:[NSString class]]) {
+        fileURL = [[NSMutableString alloc] initWithString:[[command arguments] objectAtIndex:0]];
+        NSRange amrRange = [fileURL rangeOfString:@"wav"];
+        if ((amrRange.length > 0) & [fileURL hasPrefix:@"file://"]) {
+            [fileURL deleteCharactersInRange:NSMakeRange(0, 7)];
+            amrFilePath = [[NSMutableString alloc] initWithString:[fileURL stringByReplacingOccurrencesOfString:@"wav" withString:@"amr"]];
+            if ([file fileExistsAtPath:fileURL]) {
+                [VoiceConverter ConvertWavToAmr:fileURL amrSavePath:amrFilePath];
+                attributes = [self getVoiceFileInfoByPath:fileURL];
+                fullPath = [[NSString alloc] initWithFormat:@"file://%@", amrFilePath];
+                duration = [attributes objectForKey:@"duration"];
+                amrFileName = [NSMutableString stringWithString:[amrFilePath lastPathComponent]];
+                [amrFileName deleteCharactersInRange:[amrFileName rangeOfString:@".amr"]];
+                voiceID = [[NSString alloc] initWithString:amrFileName];
+                NSLog(@"fullPath: %@", fullPath);
+                NSLog(@"duration: %@", duration);
+                NSLog(@"voiceID: %@", voiceID);
+                
+                [audioParam setObject:fullPath forKey:@"fullPath"];
+                [audioParam setObject:duration forKey:@"duration"];
+                [audioParam setObject:voiceID forKey:@"voiceID"];
+            } else {
+                errorStr = @"amr file is not exist!";
+            }
         } else {
-            errorStr = @"amr file is not exist!";
+            errorStr = @"file URL is wrong!";
         }
     } else {
-        errorStr = @"file URL is wrong!";
+        errorStr = @"audio URL must be a string variable!";
     }
     
     if (errorStr.length != 0) {
@@ -281,31 +289,35 @@
     NSString *duration;
     NSString *voiceID;
     
-    fileURL = [[NSMutableString alloc] initWithString:[[command arguments] objectAtIndex:0]];
-    NSRange amrRange = [fileURL rangeOfString:@"amr"];
-    if ((amrRange.length > 0) & [fileURL hasPrefix:@"file://"]) {
-        [fileURL deleteCharactersInRange:NSMakeRange(0, 7)];
-        wavFilePath = [[NSMutableString alloc] initWithString:[fileURL stringByReplacingOccurrencesOfString:@"amr" withString:@"wav"]];
-        if ([file fileExistsAtPath:fileURL]) {
-            [VoiceConverter ConvertAmrToWav:fileURL wavSavePath:wavFilePath];
-            attributes = [self getVoiceFileInfoByPath:wavFilePath];
-            fullPath = [[NSString alloc] initWithFormat:@"file://%@", wavFilePath];
-            duration = [attributes objectForKey:@"duration"];
-            wavFileName = [NSMutableString stringWithString:[wavFilePath lastPathComponent]];
-            [wavFileName deleteCharactersInRange:[wavFileName rangeOfString:@".wav"]];
-            voiceID = [[NSString alloc] initWithString:wavFileName];
-            NSLog(@"fullPath: %@", fullPath);
-            NSLog(@"duration: %@", duration);
-            NSLog(@"voiceID: %@", voiceID);
-            
-            [audioParam setObject:fullPath forKey:@"fullPath"];
-            [audioParam setObject:duration forKey:@"duration"];
-            [audioParam setObject:voiceID forKey:@"voiceID"];
+    if ([[[command arguments] objectAtIndex:0] isKindOfClass:[NSString class]]) {
+        fileURL = [[NSMutableString alloc] initWithString:[[command arguments] objectAtIndex:0]];
+        NSRange amrRange = [fileURL rangeOfString:@"amr"];
+        if ((amrRange.length > 0) & [fileURL hasPrefix:@"file://"]) {
+            [fileURL deleteCharactersInRange:NSMakeRange(0, 7)];
+            wavFilePath = [[NSMutableString alloc] initWithString:[fileURL stringByReplacingOccurrencesOfString:@"amr" withString:@"wav"]];
+            if ([file fileExistsAtPath:fileURL]) {
+                [VoiceConverter ConvertAmrToWav:fileURL wavSavePath:wavFilePath];
+                attributes = [self getVoiceFileInfoByPath:wavFilePath];
+                fullPath = [[NSString alloc] initWithFormat:@"file://%@", wavFilePath];
+                duration = [attributes objectForKey:@"duration"];
+                wavFileName = [NSMutableString stringWithString:[wavFilePath lastPathComponent]];
+                [wavFileName deleteCharactersInRange:[wavFileName rangeOfString:@".wav"]];
+                voiceID = [[NSString alloc] initWithString:wavFileName];
+                NSLog(@"fullPath: %@", fullPath);
+                NSLog(@"duration: %@", duration);
+                NSLog(@"voiceID: %@", voiceID);
+                
+                [audioParam setObject:fullPath forKey:@"fullPath"];
+                [audioParam setObject:duration forKey:@"duration"];
+                [audioParam setObject:voiceID forKey:@"voiceID"];
+            } else {
+                errorStr = @"wav file is not exist!";
+            }
         } else {
-            errorStr = @"wav file is not exist!";
+            errorStr = @"file URL is wrong!";
         }
     } else {
-        errorStr = @"file URL is wrong!";
+        errorStr = @"audio URL must be a string variable!";
     }
     
     if (errorStr.length != 0) {
@@ -396,8 +408,8 @@
     }
     
     NSString *filePathStr = [[[directory stringByAppendingPathComponent:fileName]
-                                stringByAppendingPathExtension:type]
-                               stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+                              stringByAppendingPathExtension:type]
+                             stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
     return filePathStr;
 }
 
