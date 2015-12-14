@@ -28,10 +28,10 @@ module.exports = {
         
         function errorHandler() {
             if (flag) {
-                handler2;
+                handler2();
             }
             else {
-                handler3;
+                handler3();
             }
         }
     },
