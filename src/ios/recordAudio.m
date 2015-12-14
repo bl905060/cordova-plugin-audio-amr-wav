@@ -6,10 +6,6 @@
 //
 //
 
-#import "KVNProgress.h"
-#import "VoiceConverter.h"
-#import <AVFoundation/AVFoundation.h>
-#import <AudioToolbox/AudioToolbox.h>
 #import "recordAudio.h"
 
 @implementation recordAudio
@@ -24,6 +20,10 @@
     NSString *callbackID = [command callbackId];
     CDVPluginResult *pluginResult;
     
+    operatePlist *readPlist = [[operatePlist alloc] init];
+    generateIDCode *idcode = [[generateIDCode alloc] init];
+    NSString *userID = [[NSString alloc] init];
+    
     if (self.recorder.isRecording) {
         errorStr = @"recorder is alread working!";
     } else {
@@ -31,7 +31,8 @@
         
         [KVNProgress showWithStatus:@"正在录音"];
         
-        self.recordFileName = [self GetCurrentTimeString];
+        userID = [[readPlist read:@"userinfo"] objectForKey:@"user_id"];
+        self.recordFileName = [idcode idCode:@"LY" withUserID:userID withDevID:@"" withNumber:0];
         //获取路径
         self.recordFilePath = [self GetPathByFileName:self.recordFileName ofType:@"wav"];
         NSLog(@"record file path is: %@", self.recordFilePath);

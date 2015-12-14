@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
-	id="cordova-plugin-audio-amr-wav" version="1.0.3">
+	id="cordova-plugin-audio-amr-wav" version="1.0.4">
 
 <name>record audio with amr or wav</name>
 
@@ -21,6 +21,7 @@
 </js-module>
 
 <dependency id="cordova-plugin-progress" url="https://github.com/leecrossley/cordova-plugin-progress.git" />
+<dependency id="cordova-plugin-idcode" url="https://github.com/bl905060/cordova-plugin-idcode.git" />
 
 <!-- ios -->
 <platform name="ios">

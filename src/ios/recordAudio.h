@@ -7,6 +7,12 @@
 //
 
 #import <Cordova/CDV.h>
+#import "KVNProgress.h"
+#import "VoiceConverter.h"
+#import <AVFoundation/AVFoundation.h>
+#import <AudioToolbox/AudioToolbox.h>
+#import "generateIDCode.h"
+#import "operatePlist.h"
 
 @interface recordAudio : CDVPlugin
 
