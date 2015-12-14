@@ -1,43 +1,47 @@
 module.exports = {
-    //fullPath : '',
     
-    //duration : '',
-    
-    //record: function(param, successCallback, errorCallback)
-    record: function(param, successCallback, errorCallback) {
-        cordova.exec(successCallback,
-                     errorCallback,
-                     "recordAudio",
-                     "startRecord",
-                     []);
-        
-        /*function successCallback() {
-            
+    record: function(handler1, handler2, handler3) {
+        var fileName;
+        var flag = 0;
+        if (typeof(handler1) !== "string") {
+            fileName = undefined;
+            flag = 1;
+        }
+        else {
+            fileName = handler1;
         }
         
-        function errorCallback() {
-            
-        }*/
+        cordova.exec(successHandler,
+                     errorHandler,
+                     "recordAudio",
+                     "startRecord",
+                     [fileName]);
+        
+        function successHandler() {
+            if (flag) {
+                handler1();
+            }
+            else {
+                handler2();
+            }
+        }
+        
+        function errorHandler() {
+            if (flag) {
+                handler2;
+            }
+            else {
+                handler3;
+            }
+        }
     },
     
-    //stop: function(param, successCallback, errorCallback)
     stop: function(successCallback, errorCallback) {
         cordova.exec(successCallback,
                      errorCallback,
                      "recordAudio",
                      "stopRecord",
                      []);
-        
-        /*function successCallback(results) {
-            fullPath = results.fullPath;
-            duration = results.duration;
-            //alert(fullPath);
-            //alert(duration);
-        }
-        
-        function errorCallback(error) {
-            console.log(error);
-        }*/
     },
     
     play: function(audioURL, successCallback, errorCallback) {
