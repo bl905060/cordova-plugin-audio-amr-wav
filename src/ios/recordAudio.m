@@ -31,8 +31,13 @@
         
         [KVNProgress showWithStatus:@"正在录音"];
         
-        userID = [[readPlist read:@"userinfo"] objectForKey:@"user_id"];
-        self.recordFileName = [idcode idCode:@"LY" withUserID:userID withDevID:@"" withNumber:0];
+        if ([command argumentAtIndex:0] != nil) {
+            self.recordFileName = [command argumentAtIndex:0];
+        }
+        else {
+            userID = [[readPlist read:@"userinfo"] objectForKey:@"user_id"];
+            self.recordFileName = [idcode idCode:@"LY" withUserID:userID withDevID:@"" withNumber:0];
+        }
         //获取路径
         self.recordFilePath = [self GetPathByFileName:self.recordFileName ofType:@"wav"];
         NSLog(@"record file path is: %@", self.recordFilePath);
