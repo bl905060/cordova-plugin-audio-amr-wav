@@ -19,8 +19,10 @@ cordova plugin add https://github.com/bl905060/cordova-plugin-audio-amr-wav.git
 ```js
 //传入音频的文件名
 recordAudio.record(“audioFileName”);
+```
 
 //不传入文件名时将默认调用[idcode](https://github.com/bl905060/cordova-plugin-idcode)插件产生文件名
+```js
 recordAudio.record();
 ```
 ##### 2、停止录制
