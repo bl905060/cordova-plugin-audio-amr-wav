@@ -23,7 +23,7 @@ recordAudio.record(“audioFileName”);
 //不传入文件名时将默认调用idcode插件产生文件名
 recordAudio.record();
 ```
-注：[IDCode](https://github.com/bl905060/cordova-plugin-idcode)插件将根据当天时间、用户名的MD5值等信息产生，详细信息请自行插卡[IDCode](https://github.com/bl905060/cordova-plugin-idcode)插件
+注：[IDCode](https://github.com/bl905060/cordova-plugin-idcode)插件将根据时间、用户名的MD5值等信息产生，详细信息请自行查看[IDCode](https://github.com/bl905060/cordova-plugin-idcode)插件
 ##### 2、停止录制
 
 ```js
