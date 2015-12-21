@@ -17,21 +17,21 @@ module.exports = {
                      "startRecord",
                      [fileName]);
         
-        function successHandler() {
-            if (flag) {
-                handler1();
+        function successHandler(results) {
+            if (flag && (typeof(handler1) === "function")) {
+                handler1(results);
             }
-            else {
-                handler2();
+            else if ((typeof(handler2) === "function")) {
+                handler2(results);
             }
         }
         
-        function errorHandler() {
+        function errorHandler(results) {
             if (flag) {
-                handler2();
+                handler2(results);
             }
             else {
-                handler3();
+                handler3(results);
             }
         }
     },
